@@ -1,0 +1,42 @@
+<h1>
+Making a graphical application
+</h1>
+
+<a href=".">VS2010 project</a>
+
+<p>In this series, we will demonstrate how to create a simple program that can read an write messages to a channel. For the GUI, we will use the Windows Presentation Foundation system. </p>
+
+
+<h2>Preliminaries</h2>
+<p>As usual, you need to have a reference in your project to the correct canlibCLSNET.dll. You also need to import the library in your class files. </p>
+
+
+<h2>The GUI</h2>
+<p>Constructing a GUI in Visual Studio is rather simple. We first create a WPF project and then drag and drop the different components we want onto the window. In our example, the result looks something like this:</p>
+<img src = "Mainframe.png" />
+
+<p>As seen in the picture, there are buttons for each of the basic Canlib functions needed for setting up a channel and writing messages for it. Each of these buttons has a function which calls its respective Canlib functions. There is also a text box where all the messages to the handle are displayed. This is activated as soon as we go on bus.</p>
+
+<p>The program doesn't do much error handling, but after each action, the status bar at the bottom is updated with information about which action was taken and if it succeeded.</p>
+
+<h2>The XAML</h2>
+<p>XAML (Extensible Application Markup Language) is a markup language used in WPF to define the graphical components of the GUI. When we used the drag and drop features in Visual Studio, some of it is created, but it's not enough to make a very exciting program. To make the program useful, we add some properties to the elements to make stuff happen:</p>
+<ol>
+<li>The <code>Click</code> property of a button specifies a function which is called whenever the button is clicked. </li>
+<li>The <code>PreviewTextInput</code> property is used in this example to call a function which prevents the user from entering non-integer values into fields which should only take integers.</li>
+<li>The <code>Tag</code> property can be sued to attach some generic object to an element. In this program, we attached number to each of the flag checkboxes to make calculating the flag values of the messages a bit easier.</li>
+</ol>
+
+<h2>The back-end</h2>
+<p>As previously mentioned, each button calls a certain method which reads any possible parameters from the text fields and in turn calls a Canlib function. If you've read the first part of this tutorial<!TODO: link>, you're already familiar with them. </p> 
+
+<p>When the Bus On button is clicked and we put the channel on bus, we also start a <code>BackgroundWorker</code> which was created in the initialization method. This  <code>BackgroundWorker</code> will run the <code>DumpMessageLoop</code> method, which is similar to the one used in Part 2<!TODO: link> of this tutorial. It loops as long as the handle is on bus and no error occur, and prints any messages received on the channel. One difference is that this loop does not print to the console but rather calls the  <code>BackgroundWorker</code>'s <code>ReportProgress</code> method which passes the value on to the <code>ProcessMessage</code> method. The reason for using  <code>BackgroundWorker</code> like instead of just spawning a new thread which runs <code>DumpMessageLoop</code> is that such a thread would not be able to access the GUI components and thus would be unable to update the output field.</p>
+
+<p>One important thing to notice is that we do not use the same handle in <code>DumpMessageLoop</code> as we do in our main thread. This is because using the same handle in different threads at the same time can cause unexpected errors. Instead, we create a new one. Just like the original handle, we need to call <code>BusOn</code> and <code>BusOff</code> with this one. </p>
+
+<p>One thing that hasn't been explained much previously in the tutorial is the message flag. The message flag is a field in the message which contains information about what kind of message is being sent. Each flag has a constant defined in Canlib. To get the flag value, the set flags' contants are added together. Each flag constant is a power of two, so the result of adding a certain set of flags is always unique. To find out if a flag is set, use the bitwise AND operator (&) on the message's flag and the flag constant. The result will be either 0 or the constant, depending on whether the flag is set or not. Some of the more important flags include: </p>
+<dl>
+<dt><code>canMSG_RTR</code></dt><dd>Means that the message is a remote request.</dd>
+<dt><code>canMSG_EXT</code></dt><dd>The message has an extended identifier (29 bits instead of 11).</dd>
+<dt><code>canMSG_ERR</code></dt><dd>The message is an error frame. When an error frame is received, the other fields in the message are usually garbage. For this reason, we don't display these fields in our program when we receive an error frame.</dd>
+</dl>
