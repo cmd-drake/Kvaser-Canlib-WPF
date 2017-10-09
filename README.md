@@ -8,9 +8,12 @@ To correctly run this example from Kvaser do the following:
 
 2.) When first opening the project, point the canlibCLSNET.dll missing under references to the DLL under Prerequisites/DLLs
 
-It should compile. 
+It should compile, and run. 
 
 This code sample from Kvaser is also modified to work better in maximized mode. 
+
+![Alt text](mainframe.png?raw=true "Screenshot of Sample Program")
+
 
 Future works: 
 
