@@ -15,6 +15,3 @@ This code sample from Kvaser is also modified to work better in maximized mode.
 ![Alt text](https://github.com/cmd-drake/Kvaser-Canlib-WPF/blob/master/Mainframe.png?raw=true "Screenshot of Sample Program")
 
 
-Future works: 
-
-I plan to also implement an Analyzer screen to show changes in the Canbus by CAN ID. 
